@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Extrig/order-service/internal/kafka"
 	"net/http"
 	"os"
 
@@ -23,11 +24,14 @@ func main() {
 	}
 
 	// Подключение к БД
-	database, err := db.InitPostgres()
+	err := db.InitPostgres()
 	if err != nil {
-		log.Fatal().Err(err).Msg("❌ Не удалось подключиться к БД")
+		log.Fatal().Err(err).Msg("❌ Не удалось инициализировать базу данных")
 	}
-	defer database.Close()
+	defer db.DB.Close()
+
+	//Запускаем kafka-consumer
+	go kafka.StartConsumer()
 
 	// Инициализируем роутер
 	r := mux.NewRouter()

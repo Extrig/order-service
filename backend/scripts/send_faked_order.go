@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -17,12 +16,12 @@ import (
 // --- Структуры с тегами faker --- //
 
 type Delivery struct {
-	Name    string `json:"name" faker:"name"`
+	Name    string `json:"name" faker:"russian_first_name_male"`
 	Phone   string `json:"phone" faker:"phone_number"`
 	Zip     string
-	City    string `json:"city" faker:"word"`
-	Address string `json:"address" faker:"sentence"`
-	Region  string `json:"region" faker:"word"`
+	City    string `json:"city"`
+	Address string `json:"address"`
+	Region  string `json:"region"`
 	Email   string `json:"email" faker:"email"`
 }
 
@@ -30,7 +29,7 @@ type Payment struct {
 	Transaction  string `json:"transaction" faker:"uuid_hyphenated"`
 	RequestID    string `json:"request_id" faker:"uuid_hyphenated"`
 	Currency     string `json:"currency"`
-	Provider     string `json:"provider" faker:"word"`
+	Provider     string `json:"provider" faker:"cc_type"`
 	Amount       int    `json:"amount"`
 	PaymentDT    int64  `json:"payment_dt"`
 	Bank         string `json:"bank" faker:"word"`
@@ -91,9 +90,16 @@ func generateFakeOrder() Order {
 	// Устанавливаем фиксированные значения после генерации faker'ом
 	order.SMID = rand.Intn(100)
 	order.DateCreated = time.Now().Format(time.RFC3339)
-	order.Delivery.Zip = fmt.Sprintf("%06d", rand.Intn(1000000))
-	order.Delivery.City = cities[rand.Intn(len(cities))]
-	order.Delivery.Region = regions[rand.Intn(len(regions))]
+	/*p := faker.Person{}*/
+
+	// Русское имя и фамилия
+	/*firstNameMale, _ := p.RussianFirstNameMale(nil)
+	lastNameMale, _ := p.RussianLastNameMale(nil)
+	order.Delivery.Name = firstNameMale + " " + lastNameMale*/
+	fakeAddress := faker.GetRealAddress()
+	order.Delivery.Zip = fakeAddress.PostalCode
+	order.Delivery.City = fakeAddress.City
+	order.Delivery.Region = fakeAddress.State
 
 	// Настраиваем платеж
 	order.Payment.Currency = "RUB" // Фиксированная валюта для консистентности
@@ -178,6 +184,7 @@ func main() {
 		successCount++
 		log.Printf("✅ [%d/%d] Заказ отправлен: %s (сумма: %d %s)",
 			i+1, n, order.OrderUID, order.Payment.Amount, order.Payment.Currency)
+		faker.ResetUnique()
 	}
 
 	log.Printf("Завершено. Успешно отправлено: %d/%d заказов", successCount, n)
