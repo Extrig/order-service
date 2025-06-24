@@ -1,0 +1,27 @@
+# Go
+bin/
+*.exe
+*.out
+*.test
+*.log
+*.prof
+
+# Dependency directories
+vendor/
+go.sum
+
+# Env
+.env
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Docker
+*.envrc
+docker-compose.override.yml
+
+# Node/Frontend
+node_modules/
+dist/
