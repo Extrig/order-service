@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib" // регистрирует "pgx" как драйвер
 )
 
 func InitPostgres() (*sql.DB, error) {
@@ -18,9 +18,8 @@ func InitPostgres() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
 
-	// Повторная попытка до 10 раз
 	for i := 1; i <= 10; i++ {
-		db, err = sql.Open("postgres", dbURL)
+		db, err = sql.Open("pgx", dbURL) // теперь используем "pgx", не "postgres"
 		if err == nil {
 			err = db.Ping()
 			if err == nil {
