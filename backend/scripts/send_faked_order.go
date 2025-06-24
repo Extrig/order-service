@@ -69,33 +69,25 @@ type Order struct {
 	OOFShard          string   `json:"oof_shard" faker:"oneof: 1,2,3"`
 }
 
-var cities = []string{"Москва", "Санкт-Петербург", "Новосибирск", "Екатеринбург", "Казань"}
-var regions = []string{"Московская обл.", "Ленинградская обл.", "Новосибирская обл."}
-
 // --- Генерация одного заказа --- //
 
-func generateFakeOrder() Order {
+func generateFakeOrder(random *rand.Rand) Order {
 	var order Order
 	if err := faker.FakeData(&order); err != nil {
 		log.Fatalf("Ошибка генерации заказа: %v", err)
 	}
 
 	// Генерируем базовые параметры товара
-	price := rand.Intn(900) + 100
-	sale := rand.Intn(50)
+	price := random.Intn(900) + 100
+	sale := random.Intn(50)
 	total := price - (price * sale / 100)
 	deliveryCost := 300
-	customFee := rand.Intn(100)
+	customFee := random.Intn(100)
 
 	// Устанавливаем фиксированные значения после генерации faker'ом
-	order.SMID = rand.Intn(100)
+	order.SMID = random.Intn(100)
 	order.DateCreated = time.Now().Format(time.RFC3339)
-	/*p := faker.Person{}*/
 
-	// Русское имя и фамилия
-	/*firstNameMale, _ := p.RussianFirstNameMale(nil)
-	lastNameMale, _ := p.RussianLastNameMale(nil)
-	order.Delivery.Name = firstNameMale + " " + lastNameMale*/
 	fakeAddress := faker.GetRealAddress()
 	order.Delivery.Zip = fakeAddress.PostalCode
 	order.Delivery.City = fakeAddress.City
@@ -111,13 +103,13 @@ func generateFakeOrder() Order {
 
 	// Создаем товар с правильными значениями
 	item := Item{
-		ChrtID:      rand.Intn(9999999),
+		ChrtID:      random.Intn(9999999),
 		TrackNumber: order.TrackNumber,
 		Price:       price,
 		Sale:        sale,
 		Size:        "0",
 		TotalPrice:  total,
-		NMID:        rand.Intn(9999999),
+		NMID:        random.Intn(9999999),
 		Status:      202,
 	}
 
@@ -138,8 +130,9 @@ func generateFakeOrder() Order {
 }
 
 func main() {
-	// Инициализируем генератор случайных чисел
-	rand.Seed(time.Now().UnixNano())
+	// Создаём локальный генератор случайных чисел
+	seed := time.Now().UnixNano()
+	random := rand.New(rand.NewSource(seed))
 
 	n := 1
 	if len(os.Args) > 1 {
@@ -164,7 +157,7 @@ func main() {
 
 	successCount := 0
 	for i := 0; i < n; i++ {
-		order := generateFakeOrder()
+		order := generateFakeOrder(random)
 		data, err := json.Marshal(order)
 		if err != nil {
 			log.Printf("❌ Ошибка сериализации #%d: %v", i+1, err)
