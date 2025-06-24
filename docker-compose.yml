@@ -1,0 +1,6 @@
+
+volumes:
+  pgdata:
+
+networks:
+  backend-net:
