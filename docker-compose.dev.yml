@@ -16,6 +16,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/logs:/app/logs
+      - ./frontend:/frontend
     networks:
       - backend-net
     command: >

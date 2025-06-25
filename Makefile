@@ -46,6 +46,5 @@ migrate:
 # Генерация фейковых заказов (make fake-order N=5)
 fake-order:
 	@echo "📦 Генерация $(N) заказ(ов)..."
-	@for i in $(shell seq 1 ${N}); do \
-		docker exec -i order-backend go run scripts/send_faked_order.go; \
-	done
+	docker exec -i order-backend go run scripts/send_faked_order.go $(N)
+

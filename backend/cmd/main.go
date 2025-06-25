@@ -1,9 +1,11 @@
 package main
 
 import (
+	handlers "github.com/Extrig/order-service/internal/handler"
 	"github.com/Extrig/order-service/internal/kafka"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -30,6 +32,11 @@ func main() {
 	}
 	defer db.DB.Close()
 
+	// Восстановление кеша
+	if err := db.LoadCacheFromDB(); err != nil {
+		log.Err(err).Msg("❌ Ошибка при загрузке кеша")
+	}
+
 	//Запускаем kafka-consumer
 	go kafka.StartConsumer()
 
@@ -38,6 +45,19 @@ func main() {
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	}).Methods("GET")
+
+	r.HandleFunc("/order/{uid}", handlers.GetOrderHandler).Methods("GET")
+
+	// Путь до frontend
+	frontendPath := "/frontend"
+
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(frontendPath)))
+
+	// Главная страница — index.html
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join(frontendPath, "index.html"))
+		log.Info().Msgf("%s", filepath.Join(frontendPath, "index.html"))
+	})
 
 	// Получаем порт из .env
 	port := os.Getenv("PORT")

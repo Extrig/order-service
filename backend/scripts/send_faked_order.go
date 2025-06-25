@@ -155,7 +155,7 @@ func main() {
 
 	log.Printf("Начинаем отправку %d заказов в Kafka (%s)", n, addr)
 
-	successCount := 0
+	var messages []kafka.Message
 	for i := 0; i < n; i++ {
 		order := generateFakeOrder(random)
 		data, err := json.Marshal(order)
@@ -164,21 +164,22 @@ func main() {
 			continue
 		}
 
-		err = writer.WriteMessages(context.Background(), kafka.Message{
+		messages = append(messages, kafka.Message{
 			Key:   []byte(order.OrderUID),
 			Value: data,
 			Time:  time.Now(),
 		})
-		if err != nil {
-			log.Printf("❌ Ошибка Kafka #%d: %v", i+1, err)
-			continue
-		}
 
-		successCount++
-		log.Printf("✅ [%d/%d] Заказ отправлен: %s (сумма: %d %s)",
+		log.Printf("✅ [%d/%d] Подготовлен заказ: %s (сумма: %d %s)",
 			i+1, n, order.OrderUID, order.Payment.Amount, order.Payment.Currency)
+
 		faker.ResetUnique()
 	}
 
-	log.Printf("Завершено. Успешно отправлено: %d/%d заказов", successCount, n)
+	// Отправляем все заказы одной пачкой
+	if err := writer.WriteMessages(context.Background(), messages...); err != nil {
+		log.Fatalf("❌ Ошибка при отправке в Kafka: %v", err)
+	}
+
+	log.Printf("Завершено. Успешно отправлено: %d/%d заказов", len(messages), n)
 }

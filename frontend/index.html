@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Просмотр заказа</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Просмотр заказа</h1>
+    <div class="search">
+        <input type="text" id="orderIdInput" placeholder="Введите Order UID">
+        <button onclick="fetchOrder()">Найти</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('info')">Информация</button>
+        <button class="tab-button" onclick="showTab('json')">JSON</button>
+    </div>
+
+    <div id="infoTab" class="tab-content active"></div>
+    <pre id="jsonTab" class="tab-content"></pre>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

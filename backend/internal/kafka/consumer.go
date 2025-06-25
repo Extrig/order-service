@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Extrig/order-service/internal/db"
-	models "github.com/Extrig/order-service/internal/model"
+	model "github.com/Extrig/order-service/internal/model"
 	"github.com/rs/zerolog/log"
 	"github.com/segmentio/kafka-go"
 	"os"
@@ -38,7 +38,7 @@ func StartConsumer() {
 		}
 		log.Info().Str("key", string(m.Key)).Msg("🔔 Получено новое сообщение")
 
-		var order models.Order
+		var order model.Order
 		if err := json.Unmarshal(m.Value, &order); err != nil {
 			log.Error().Err(err).Msg("Ошибка при разборе JSON заказа")
 			continue
