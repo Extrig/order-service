@@ -51,12 +51,12 @@ func main() {
 	// Путь до frontend
 	frontendPath := "/frontend"
 
+	//Для статики
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(frontendPath)))
 
 	// Главная страница — index.html
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join(frontendPath, "index.html"))
-		log.Info().Msgf("%s", filepath.Join(frontendPath, "index.html"))
 	})
 
 	// Получаем порт из .env

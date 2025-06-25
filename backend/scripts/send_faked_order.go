@@ -74,7 +74,7 @@ type Order struct {
 func generateFakeOrder(random *rand.Rand) Order {
 	var order Order
 	if err := faker.FakeData(&order); err != nil {
-		log.Fatalf("Ошибка генерации заказа: %v", err)
+		log.Fatalf("❌Ошибка генерации заказа: %v", err)
 	}
 
 	// Генерируем базовые параметры товара
@@ -115,13 +115,13 @@ func generateFakeOrder(random *rand.Rand) Order {
 
 	// Генерируем только те поля, которые нам нужны от faker'а
 	if err := faker.FakeData(&item.RID); err != nil {
-		log.Printf("Предупреждение: не удалось сгенерировать RID: %v", err)
+		log.Printf("‼️Предупреждение: не удалось сгенерировать RID: %v", err)
 	}
 	if err := faker.FakeData(&item.Name); err != nil {
-		log.Printf("Предупреждение: не удалось сгенерировать Name: %v", err)
+		log.Printf("‼️Предупреждение: не удалось сгенерировать Name: %v", err)
 	}
 	if err := faker.FakeData(&item.Brand); err != nil {
-		log.Printf("Предупреждение: не удалось сгенерировать Brand: %v", err)
+		log.Printf("‼️Предупреждение: не удалось сгенерировать Brand: %v", err)
 	}
 
 	order.Items = []Item{item}
@@ -146,9 +146,14 @@ func main() {
 		addr = "kafka:9092"
 	}
 
+	topic := os.Getenv("KAFKA_TOPIC")
+	if topic == "" {
+		topic = "orders"
+	}
+
 	writer := kafka.Writer{
 		Addr:     kafka.TCP(addr),
-		Topic:    "orders",
+		Topic:    topic,
 		Balancer: &kafka.LeastBytes{},
 	}
 	defer writer.Close()
@@ -160,7 +165,7 @@ func main() {
 		order := generateFakeOrder(random)
 		data, err := json.Marshal(order)
 		if err != nil {
-			log.Printf("❌ Ошибка сериализации #%d: %v", i+1, err)
+			log.Printf("❌Ошибка сериализации #%d: %v", i+1, err)
 			continue
 		}
 
@@ -181,5 +186,5 @@ func main() {
 		log.Fatalf("❌ Ошибка при отправке в Kafka: %v", err)
 	}
 
-	log.Printf("Завершено. Успешно отправлено: %d/%d заказов", len(messages), n)
+	log.Printf("🔥Завершено. Успешно отправлено: %d/%d заказов", len(messages), n)
 }
