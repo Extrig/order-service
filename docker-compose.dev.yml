@@ -58,7 +58,6 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_BROKER_ID: 1
-      KAFKA_CREATE_TOPICS: "orders:1:1"
     depends_on:
       - zookeeper
     networks:
