@@ -32,7 +32,7 @@ type Payment struct {
 	Provider     string `json:"provider" faker:"cc_type"`
 	Amount       int    `json:"amount"`
 	PaymentDT    int64  `json:"payment_dt"`
-	Bank         string `json:"bank" faker:"word"`
+	Bank         string `json:"bank" faker:"oneof: Сбербанк, Т-банк, Альфа-банк"`
 	DeliveryCost int    `json:"delivery_cost"`
 	GoodsTotal   int    `json:"goods_total"`
 	CustomFee    int    `json:"custom_fee"`
@@ -43,12 +43,12 @@ type Item struct {
 	TrackNumber string `json:"track_number"`
 	Price       int    `json:"price"`
 	RID         string `json:"rid" faker:"uuid_hyphenated"`
-	Name        string `json:"name" faker:"word"`
+	Name        string `json:"name"`
 	Sale        int    `json:"sale"`
 	Size        string `json:"size"`
 	TotalPrice  int    `json:"total_price"`
 	NMID        int    `json:"nm_id"`
-	Brand       string `json:"brand" faker:"word"`
+	Brand       string `json:"brand"`
 	Status      int    `json:"status"`
 }
 
@@ -59,14 +59,20 @@ type Order struct {
 	Delivery          Delivery `json:"delivery"`
 	Payment           Payment  `json:"payment"`
 	Items             []Item   `json:"items"`
-	Locale            string   `json:"locale" faker:"word"`
+	Locale            string   `json:"locale" faker:"oneof: ru"`
 	InternalSignature string   `json:"internal_signature" faker:"uuid_hyphenated"`
 	CustomerID        string   `json:"customer_id" faker:"username"`
-	DeliveryService   string   `json:"delivery_service" faker:"word"`
+	DeliveryService   string   `json:"delivery_service" faker:"oneof: CDEK, WB, Avito"`
 	ShardKey          string   `json:"shardkey" faker:"oneof: 1,2,3,4,5,6,7,8,9"`
 	SMID              int      `json:"sm_id"`
 	DateCreated       string   `json:"date_created"`
 	OOFShard          string   `json:"oof_shard" faker:"oneof: 1,2,3"`
+}
+
+type FakeItem struct {
+	RID   string `json:"rid" faker:"uuid_hyphenated"`
+	Name  string `faker:"oneof: Ноутбук, Телефон, Телевизор, Часы"`
+	Brand string `faker:"oneof: LG, SAMSUNG, Apple, Xiaomi"`
 }
 
 // --- Генерация одного заказа --- //
@@ -114,14 +120,13 @@ func generateFakeOrder(random *rand.Rand) Order {
 	}
 
 	// Генерируем только те поля, которые нам нужны от faker'а
-	if err := faker.FakeData(&item.RID); err != nil {
-		log.Printf("‼️Предупреждение: не удалось сгенерировать RID: %v", err)
-	}
-	if err := faker.FakeData(&item.Name); err != nil {
-		log.Printf("‼️Предупреждение: не удалось сгенерировать Name: %v", err)
-	}
-	if err := faker.FakeData(&item.Brand); err != nil {
-		log.Printf("‼️Предупреждение: не удалось сгенерировать Brand: %v", err)
+	var fakeItem FakeItem
+	if err := faker.FakeData(&fakeItem); err != nil {
+		log.Printf("‼️Предупреждение: не удалось сгенерировать fakeItem: %v", err)
+	} else {
+		item.RID = fakeItem.RID
+		item.Name = fakeItem.Name
+		item.Brand = fakeItem.Brand
 	}
 
 	order.Items = []Item{item}

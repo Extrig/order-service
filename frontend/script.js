@@ -20,10 +20,9 @@ function renderInfo(order) {
     infoEl.innerHTML = `
     <h2>Общая информация</h2>
     <table>
-      <tr><th>Order UID</th><td>${order.order_uid}</td></tr>
-      <tr><th>Track Number</th><td>${order.track_number}</td></tr>
-      <tr><th>Locale</th><td>${order.locale}</td></tr>
-      <tr><th>Delivery Service</th><td>${order.delivery_service}</td></tr>
+      <tr><th>ID Заказа</th><td>${order.order_uid}</td></tr>
+      <tr><th>Трек номер</th><td>${order.track_number}</td></tr>
+      <tr><th>Сервис доставки</th><td>${order.delivery_service}</td></tr>
       <tr><th>Дата</th><td>${order.date_created}</td></tr>
     </table>
 
@@ -48,7 +47,7 @@ function renderInfo(order) {
       <tr><th>Название</th><th>Цена</th><th>Скидка</th><th>Итого</th></tr>
       ${order.items.map(item => `
         <tr>
-          <td>${item.name}</td>
+          <td>${item.brand + ' ' + item.name}</td>
           <td>${item.price}</td>
           <td>${item.sale}%</td>
           <td>${item.total_price}</td>
